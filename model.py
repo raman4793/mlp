@@ -7,30 +7,48 @@ class Model:
         self.layers = np.array([], dtype=Layer)
         self.inputs = None
         self.targets = None
-        self.outputs = None
+        self.outputs = []
         self.learning_rate = None
         self.epochs = None
         self.loss_function = None
 
-    def add(self, layer):
+    def add(self, layer: Layer):
         layer.__set_id__(self.layers.size + 1)
         self.layers = np.append(self.layers, layer)
 
-    def train(self, inputs, targets, learning_rate, epochs, loss_function):
+    def train(self, inputs: np.ndarray, targets: np.ndarray, learning_rate: float, epochs: int,
+              loss_function):
         self.__setup__(inputs, targets, learning_rate, epochs, loss_function)
         for epoch in range(epochs):
-            guess = self.predict(inputs, all_outs=True)
-            guess = guess[-1]
+            print("EPOCH ", epoch)
+            self.predict(inputs)
             self.loss_function(self)
 
-    def predict(self, inputs, all_outs=False):
+    def predict(self, inputs: np.ndarray):
+        """
+        Predict method takes an numpy array of inputs/input and returns numpy array of outputs/output
+        """
+        self.outputs = []
+        self.outputs.append(inputs)
         for layer in self.layers:
-            self.outputs = [inputs]
             inputs = layer.process(inputs)
-        return self.outputs if all_outs else inputs
+            self.outputs.append(inputs)
+        return inputs
 
     def gradient_descend(self):
-        pass
+        i = self.layers.size
+        guess = self.outputs[-1]
+        error = self.targets - guess
+        error = error * self.learning_rate
+        print("Total Error = ", np.mean(np.abs(error)))
+        for layer, guess in zip(reversed(self.layers), reversed(self.outputs)):
+            delta = error * layer.activation_function(guess, derivative=True)
+            error = delta.dot(layer.weights.T)
+            if i > 0:
+                previous_output = self.outputs[i - 1]
+                weight_adjust = previous_output.T.dot(delta)
+                layer.weights += weight_adjust
+            i -= 1
 
     def __setup__(self, inputs, targets, learning_rate, epochs, loss_function):
         self.inputs = inputs
@@ -42,7 +60,7 @@ class Model:
 
 def sigmoid(x, derivative=False):
     if derivative:
-        sig = sigmoid(x)
-        return 1 * (1 - x)
+        x = sigmoid(x)
+        return x * (1 - x)
     else:
         return 1 / (1 + np.exp(-x))
