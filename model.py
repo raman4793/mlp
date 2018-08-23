@@ -1,5 +1,6 @@
 import numpy as np
 from layer import Layer
+import pickle
 
 
 class Model:
@@ -28,12 +29,15 @@ class Model:
         """
         Predict method takes an numpy array of inputs/input and returns numpy array of outputs/output
         """
-        self.outputs = []
-        self.outputs.append(inputs)
-        for layer in self.layers:
-            inputs = layer.process(inputs)
+        if self.inputs is None:
+            print("The neural network is not yet defined")
+        else:
+            self.outputs = []
             self.outputs.append(inputs)
-        return inputs
+            for layer in self.layers:
+                inputs = layer.process(inputs)
+                self.outputs.append(inputs)
+            return inputs
 
     def gradient_descend(self):
         i = self.layers.size
@@ -49,6 +53,19 @@ class Model:
                 weight_adjust = previous_output.T.dot(delta)
                 layer.weights += weight_adjust
             i -= 1
+
+    def save(self, file_name):
+        model_file = open(file_name, 'wb')
+        pickle.dump(self, model_file)
+
+    @staticmethod
+    def load(file_name):
+        try:
+            model_file = open(file_name, 'rb')
+            return pickle.load(model_file)
+        except FileNotFoundError:
+            print("The model file {} was not found".format(file_name))
+            return Model()
 
     def __setup__(self, inputs, targets, learning_rate, epochs, loss_function):
         self.inputs = inputs

@@ -41,3 +41,4 @@ mlp.add(layer)
 mlp.train(inputs, outputs, learning_rate, epochs, loss_function)
 # after training we can call predict method on our model object with inputs as parameters
 print(mlp.predict(inputs))
+mlp.save("model")
