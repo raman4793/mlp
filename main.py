@@ -21,6 +21,8 @@ outputs = np.array([
 learning_rate = 0.2
 # epochs for training or in simple words no of training iteration
 epochs = 50000
+# Batch size
+batch = 0
 # Creating a model object
 mlp = Model()
 # setting the activation function as sigmoid method defined in model package
@@ -38,6 +40,6 @@ mlp.add(layer)
 # at this point we hav a neural network with 2 hidden neurons and one output neuron
 # calling train method on the model object with inputs, outputs, the learning rate,
 # epochs and the loss function as parameters
-mlp.train(inputs, outputs, learning_rate, epochs, loss_function)
+mlp.train(inputs, outputs, learning_rate, epochs, batch, loss_function)
 # after training we can call predict method on our model object with inputs as parameters
 print(mlp.predict(inputs))
